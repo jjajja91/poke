@@ -12,6 +12,7 @@ import server.repository.RepoType
 import scan.util.coroutine.retryAwaitAll
 import scan.util.pokemon.PokemonConst
 import scan.dto.PokemonNameUrlDTO
+import scan.util.pokemon.toJson
 import server.dto.PokemonTypeDTO
 import server.dto.PokemonTypeRelationDTO
 
@@ -68,7 +69,7 @@ class SvType(
             nameEn = nameByLang[EnumLanguage.EN.key] ?: item.name,
             nameKr = nameByLang[EnumLanguage.KR.key] ?: item.name,
             nameJp = nameByLang[EnumLanguage.JP.key] ?: nameByLang[EnumLanguage.JP2.key] ?: item.name,
-            contents = mapper.writeValueAsString(mapOf(PokemonConst.DAMAGE_RELATION_KEY to relationMap))
+            contents = mapper.toJson(relationMap)
         )
         println(entity)
         return entity

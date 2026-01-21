@@ -15,3 +15,10 @@ data class PokemonMoveDTO(
     val pp: Int,
     val type: PokemonNameUrlDTO
 )
+
+data class PokemonMoveDetailDTO(
+    val accuracy: Int,
+    val power: Int,
+    val pp: Int,
+    val damageClass: Int
+)

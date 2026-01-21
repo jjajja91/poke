@@ -15,10 +15,11 @@ import scan.util.coroutine.AppScope
 import scan.util.coroutine.JobStatusStore
 import scan.util.coroutine.retryAwaitAll
 import scan.util.pokemon.PokemonConst
+import scan.util.pokemon.toJson
 import server.dto.PokemonMoveDTO
+import server.dto.PokemonMoveDetailDTO
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.jvm.optionals.getOrNull
 
 @Service
 class SvMove(
@@ -107,6 +108,12 @@ class SvMove(
             .awaitBody<PokemonMoveDTO>()
         val nameByLang = item.names.associateBy({ it.language.name }, { it.name })
         val descriptionByLang = item.flavor_text_entries.associateBy({ it.language.name }, { it.flavor_text })
+        val detail = PokemonMoveDetailDTO(
+            accuracy = item.accuracy,
+            power = item.power,
+            pp = item.pp,
+            damageClass = PokemonConst.getIdForUrl(item.damage_class.url) ?: throw Throwable("unknown damage_class id")
+        )
         val entity = EntMove(
             id = item.id,
             typeId = PokemonConst.getIdForUrl(item.type.url) ?: throw Throwable("unknown type id"),
@@ -116,12 +123,7 @@ class SvMove(
             descriptionEn = descriptionByLang[EnumLanguage.EN.key] ?: "",
             descriptionKr = descriptionByLang[EnumLanguage.KR.key] ?: "",
             descriptionJp = descriptionByLang[EnumLanguage.JP.key] ?: descriptionByLang[EnumLanguage.JP2.key] ?: "",
-            details = mapper.writeValueAsString(mapOf(
-                "accuracy" to item.accuracy,
-                "power" to item.power,
-                "pp" to item.pp,
-                "damageClass" to (PokemonConst.getIdForUrl(item.damage_class.url) ?: throw Throwable("unknown damage_class id"))
-            ))
+            details = mapper.toJson(detail)
         )
         println(entity)
         return entity

@@ -162,7 +162,7 @@ class SvPokemon(
             def = stat.def,
             sdef = stat.sdef,
             spd = stat.spd,
-            details = mapper.toJson<PokemonDetailsDTO>(details)
+            details = mapper.toJson(details)
         )
         println(entity)
         return entity

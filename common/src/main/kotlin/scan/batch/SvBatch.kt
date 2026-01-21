@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional
 import scan.enum.EnumFailDomain
 import scan.util.coroutine.BatchResult
 import scan.dto.PokemonErrorDTO
+import scan.util.pokemon.toJson
 
 @Service
 class SvBatch(
@@ -51,11 +52,11 @@ class SvBatch(
     fun deleteAllFail(domain: EnumFailDomain) {
         failRepository.deleteAllByDomain(domain.tableName)
     }
-    private fun toErrorJson(error: Throwable) = mapper.writeValueAsString(
-        mapOf(
-            "message" to (error.message ?: error.localizedMessage),
-            "type" to error::class.simpleName,
-            "cause" to (error.cause?.javaClass?.simpleName ?: "")
+    private fun toErrorJson(error: Throwable) = mapper.toJson(
+        FailDetailDTO(
+            message = error.message ?: error.localizedMessage,
+            type = error::class.simpleName?:"",
+            cause = error.cause?.javaClass?.simpleName?:""
         )
     )
 }
