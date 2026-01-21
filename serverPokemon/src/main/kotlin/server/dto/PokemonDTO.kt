@@ -110,7 +110,3 @@ data class PokemonDetailsDTO(
     val isLegendary: Boolean = false,
     val isMythical: Boolean = false
 )
-
-fun ObjectMapper.toPokemonDetailsJson(details: PokemonDetailsDTO): String = this.writeValueAsString(details)
-
-fun ObjectMapper.fromPokemonDetailsJson(json: String): PokemonDetailsDTO = this.readValue(json, PokemonDetailsDTO::class.java)
