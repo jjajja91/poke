@@ -48,8 +48,7 @@ class SvPokemon(
                 svBatch.deleteAllFail(DOMAIN)
                 val idSet = PokemonConst.getIdSet(pokemonWebClient, DOMAIN.apiKey)
                 addList(idSet)
-            },
-            { sl ->
+            }, { sl ->
                 pokemonRepository.saveAll(sl)
             }
         )

@@ -1,25 +1,21 @@
 package server.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import scan.batch.SvBatch
+import scan.batch.SvBatchJobRunner
 import server.entity.EntMove
 import scan.enum.EnumFailDomain
 import scan.enum.EnumLanguage
 import server.repository.RepoMove
-import scan.util.coroutine.AppScope
-import scan.util.coroutine.JobStatusStore
+import scan.util.coroutine.BatchResult
 import scan.util.coroutine.retryAwaitAll
 import scan.util.pokemon.PokemonConst
 import scan.util.pokemon.toJson
 import server.dto.PokemonMoveDTO
 import server.dto.PokemonMoveDetailDTO
-import java.util.UUID
-import java.util.concurrent.atomic.AtomicInteger
 
 @Service
 class SvMove(
@@ -27,78 +23,44 @@ class SvMove(
     private val mapper: ObjectMapper,
     private val pokemonWebClient: WebClient,
     private val svBatch: SvBatch,
-    private val appScope: AppScope,
-    private val statusStore: JobStatusStore
+    private val svBatchJobRunner: SvBatchJobRunner
 ) {
     private val DOMAIN = EnumFailDomain.MOVE
     fun getName(name: String): EntMove {
         val move = moveRepository.findByNameEnIgnoreCase(name) ?: throw Throwable("Move $name not found")
         return move
     }
-    // force 저장 진입점 (요청만 하고 바로 응답 / 백그라운드에서 진행)
-    fun startAddAllForce():String {
-        val jobId = UUID.randomUUID().toString()
-        statusStore.start(jobId, name = "${DOMAIN.name}:addAllForce")
-        appScope.launchApp("${DOMAIN.name}:addAllForce$jobId") {
-            runAddAllForce(jobId)
-        }
-        return jobId
-    }
-    private suspend fun runAddAllForce(jobId: String) {
-        val successCount = AtomicInteger(0)
-        val failCount = AtomicInteger(0)
-        try {
-            // 1) 기존 데이터/실패 기록 정리 (DB 작업이므로 IO)
-            withContext(Dispatchers.IO) {
+    fun addAllForce():String {
+        return svBatchJobRunner.startBatchJob(
+            DOMAIN,
+            {
                 moveRepository.deleteAllInBatch()
                 svBatch.deleteAllFail(DOMAIN)
-            }
-
-            // 2) 전체 idSet 가져오기 (네트워크 suspend)
-            val idSet = PokemonConst.getIdSet(pokemonWebClient, DOMAIN.apiKey)
-            statusStore.update(jobId, total = idSet.size)
-            if (idSet.isEmpty()) {
-                statusStore.done(jobId, success = 0, fail = 0)
-                return
-            }
-            // 3) 병렬 수집
-            val result = idSet.retryAwaitAll(
-                retry = 3, concurrency = 7, delayMs = 3000
-            ) { id ->
-                item(id)
-            }
-            // 간단 집계
-            successCount.set(result.successList.size)
-            failCount.set(result.failList.size)
-            // 4) DB 저장
-            withContext(Dispatchers.IO) {
-                svBatch.batchAll(DOMAIN, result) { sl ->
-                    val pureList = sl.filter { it.typeId in PokemonConst.TYPE_ID_SET }
-                    moveRepository.saveAll(pureList)
-                }
-            }
-            statusStore.done(jobId, success = successCount.get(), fail = failCount.get())
-        } catch (t: Throwable) {
-            statusStore.failed(jobId, success = successCount.get(), fail = failCount.get(), message = t.message)
-            throw t
-        }
-    }
-    suspend fun addAllCheck() {
-        val failList = svBatch.findAllFail(DOMAIN)
-        addList(failList.map { it.refId }.toSet())
-    }
-    private suspend fun addList(idSet:Set<Int>) {
-        if (idSet.isEmpty()) return
-        val result = idSet.retryAwaitAll(
-            retry = 3, concurrency = 7, delayMs = 3000
-        ) { id ->
-            item(id)
-        }
-        withContext(Dispatchers.IO) {
-            svBatch.batchAll(DOMAIN, result) { sl ->
+                val idSet = PokemonConst.getIdSet(pokemonWebClient, DOMAIN.apiKey)
+                addList(idSet)
+            }, { sl ->
                 val pureList = sl.filter { it.typeId in PokemonConst.TYPE_ID_SET }
                 moveRepository.saveAll(pureList)
             }
+        )
+    }
+    suspend fun addAllCheck():String {
+        return svBatchJobRunner.startBatchJob(
+            DOMAIN,
+            {
+                val failList = svBatch.findAllFail(DOMAIN)
+                addList(failList.map { it.refId }.toSet())
+            }, { sl ->
+                moveRepository.saveAll(sl)
+            }
+        )
+    }
+    private suspend fun addList(idSet:Set<Int>): BatchResult<Int, EntMove> {
+        return if (idSet.isEmpty()) BatchResult(listOf(), listOf())
+        else idSet.retryAwaitAll(
+            retry = 3, concurrency = 7, delayMs = 3000
+        ) { id ->
+            item(id)
         }
     }
     private suspend fun item(id:Int):EntMove {

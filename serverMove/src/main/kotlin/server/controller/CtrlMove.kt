@@ -16,11 +16,14 @@ class CtrlMove(
     private val statusStore: JobStatusStore
 ) {
     @PostMapping("/add/all")
-    suspend fun addAll() { service.addAllCheck() }
+    suspend fun addAll(): ResponseEntity<Map<String, String>> {
+        val jobId = service.addAllCheck()
+        return ResponseEntity.accepted().body(mapOf("jobId" to jobId))
+    }
 
     @PostMapping("/add/all/force")
     fun addAllForce(): ResponseEntity<Map<String, String>> {
-        val jobId = service.startAddAllForce()
+        val jobId = service.addAllForce()
         return ResponseEntity.accepted().body(mapOf("jobId" to jobId))
     }
     @GetMapping("/job/{jobId}")
