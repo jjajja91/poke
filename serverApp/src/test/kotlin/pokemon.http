@@ -1,0 +1,7 @@
+### 포켓몬 검색
+
+POST http://localhost:8080/api/pokemon/add/all/force
+
+### 포켓몬 검색
+
+GET http://localhost:8080/api/pokemon/random

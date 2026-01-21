@@ -1,0 +1,57 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16
+    container_name: poke-postgres
+    environment:
+      POSTGRES_DB: poke
+      POSTGRES_USER: admin1
+      POSTGRES_PASSWORD: qwer1234
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin1 -d poke"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [appnet]
+
+  mysql:
+    image: mysql:8.4
+    container_name: poke-mysql
+    environment:
+      MYSQL_DATABASE: poke
+      MYSQL_USER: admin1
+      MYSQL_PASSWORD: qwer1234
+      MYSQL_ROOT_PASSWORD: root
+      TZ: Asia/Seoul
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysqldata:/var/lib/mysql
+    networks: [appnet]
+#    healthcheck:
+#      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -p$${MYSQL_ROOT_PASSWORD} --silent"]
+#      interval: 5s
+#      timeout: 3s
+#      retries: 10
+
+  adminer:
+    image: adminer:4
+    container_name: poke-adminer
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+      - mysql
+    networks: [appnet]
+
+volumes:
+  pgdata:
+  mysqldata:
+
+networks:
+  appnet: { }
