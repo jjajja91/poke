@@ -7,14 +7,12 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import server.service.SvPokemon
-import server.service.SvType
 import scan.util.coroutine.JobStatusStore
 
 @RestController
 @RequestMapping("/api/pokemon")
 class CtrlPokemon(
     private val service: SvPokemon,
-    private val typeService: SvType,
     private val statusStore: JobStatusStore
 ) {
     @PostMapping("/add/all")
@@ -22,7 +20,7 @@ class CtrlPokemon(
 
     @PostMapping("/add/all/force")
     fun addAllForce(): ResponseEntity<Map<String, String>> {
-        val jobId = service.startAddAllForce()
+        val jobId = service.addAllForce()
         return ResponseEntity.accepted().body(mapOf("jobId" to jobId))
     }
     @GetMapping("/job/{jobId}")

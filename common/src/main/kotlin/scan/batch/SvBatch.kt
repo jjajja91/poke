@@ -48,7 +48,6 @@ class SvBatch(
         }
         failRepository.upsertAll(rows)
     }
-    @Transactional
     fun deleteAllFail(domain: EnumFailDomain) {
         failRepository.deleteAllByDomain(domain.tableName)
     }

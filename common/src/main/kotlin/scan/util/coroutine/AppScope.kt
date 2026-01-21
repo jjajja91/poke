@@ -1,6 +1,8 @@
 package scan.util.coroutine
 
 import jakarta.annotation.PreDestroy
+import kotlinx.coroutines.CompletableJob
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,16 +18,18 @@ import kotlin.coroutines.cancellation.CancellationException
 class AppScope : CoroutineScope {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-    private val job = SupervisorJob()
+    private val job: CompletableJob = SupervisorJob()
 
     override val coroutineContext: CoroutineContext =
         job + Dispatchers.Default + CoroutineName("app-scope")
 
     fun launchApp(
         name: String,
+        dispatcher: CoroutineDispatcher = Dispatchers.Default,
         block: suspend CoroutineScope.() -> Unit
     ): Job {
-        return launch(CoroutineName(name)) {
+        // ✅ 기존 coroutineContext(job 포함)에 dispatcher + name을 "추가"해서 실행
+        return launch(coroutineContext + dispatcher + CoroutineName(name)) {
             try {
                 block()
             } catch (ce: CancellationException) {
@@ -33,7 +37,6 @@ class AppScope : CoroutineScope {
                 throw ce
             } catch (t: Throwable) {
                 logger.error("Job failed: {}", name, t)
-                // SupervisorJob이라 여기서 throw해도 다른 작업엔 영향 없음
                 throw t
             }
         }
