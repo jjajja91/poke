@@ -17,15 +17,13 @@ import scan.util.coroutine.AppScope
 import scan.util.coroutine.JobStatusStore
 import scan.util.coroutine.retryAwaitAll
 import scan.util.pokemon.PokemonConst
+import scan.util.pokemon.toJson
 import server.dto.PokemonApiDTO
 import server.dto.PokemonApiStatDTO
 import server.dto.PokemonDetailsDTO
 import server.dto.PokemonSpeciesDTO
-import server.dto.toPokemonDetailsJson
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.jvm.optionals.getOrElse
-import kotlin.jvm.optionals.getOrNull
 import kotlin.random.Random
 
 @Service
@@ -164,7 +162,7 @@ class SvPokemon(
             def = stat.def,
             sdef = stat.sdef,
             spd = stat.spd,
-            details = mapper.toPokemonDetailsJson(details)
+            details = mapper.toJson<PokemonDetailsDTO>(details)
         )
         println(entity)
         return entity
