@@ -36,7 +36,7 @@ class SvType(
         val failList = svBatch.findAllFail(DOMAIN)
         addList(failList.map { it.refId }.toSet())
     }
-    suspend fun deleteAll() {
+    fun deleteAll() {
         typeRepository.deleteAllInBatch()
     }
     private suspend fun addList(idSet:Set<Int>) {
