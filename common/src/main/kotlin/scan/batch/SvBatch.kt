@@ -22,7 +22,8 @@ class SvBatch(
     @Transactional
     fun <V> batchAll(domain:EnumFailDomain, result:BatchResult<Int, V>, successBlock:(List<V>)->Unit) {
         if(result.successList.isNotEmpty()) {
-            result.successData().chunked(BATCH_CHUNK_SIZE).forEach { chunk ->
+            val data = result.successData()
+            data.chunked(BATCH_CHUNK_SIZE).forEach { chunk ->
                 successBlock(chunk)
             }
             val refIds = result.successList.map { it.item }
