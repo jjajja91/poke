@@ -6,7 +6,7 @@ import scan.sql.common.Field
 import scan.sql.common.FieldType
 import scan.sql.common.From
 import scan.sql.common.QueryData
-import scan.sql.VO
+import scan.sql.DTO
 import scan.sql.Table
 import java.time.LocalDate
 import kotlin.reflect.KClass
@@ -22,49 +22,49 @@ value class Select(@PublishedApi internal val data:QueryData){
         data.field().add(Field(FieldType.Projection,T::class.simpleName!!, field.name, alias))
         return this
     }
-    inline fun <reified T:Table, reified V:VO> colStr(field:KProperty1<T, String>, alias:KProperty1<V, String>):Select{
+    inline fun <reified T:Table, reified V:DTO> colStr(field:KProperty1<T, String>, alias:KProperty1<V, String>):Select{
         data.addRsVO<V>()
         data.field().add(Field(FieldType.Projection,T::class.simpleName!!, field.name, alias.name))
         return this
     }
-    inline fun <reified T:Table, reified V:VO> colNum(field:KProperty1<T, Number>, alias:KProperty1<V, Number>):Select{
+    inline fun <reified T:Table, reified V:DTO> colNum(field:KProperty1<T, Number>, alias:KProperty1<V, Number>):Select{
         data.addRsVO<V>()
         data.field().add(Field(FieldType.Projection,T::class.simpleName!!, field.name, alias.name))
         return this
     }
-    inline fun <reified T:Table, reified V:VO> colBool(field:KProperty1<T, Byte>, alias:KProperty1<V, Boolean>):Select{
+    inline fun <reified T:Table, reified V:DTO> colBool(field:KProperty1<T, Byte>, alias:KProperty1<V, Boolean>):Select{
         data.addRsVO<V>()
         data.field().add(Field(FieldType.Projection,T::class.simpleName!!, field.name, alias.name))
         return this
     }
-    inline fun <reified T:Table, reified V:VO> colDate(field:KProperty1<T, LocalDate>, alias:KProperty1<V, LocalDate>):Select{
+    inline fun <reified T:Table, reified V:DTO> colDate(field:KProperty1<T, LocalDate>, alias:KProperty1<V, LocalDate>):Select{
         data.addRsVO<V>()
         data.field().add(Field(FieldType.Projection,T::class.simpleName!!, field.name, alias.name))
         return this
     }
-    inline fun <reified T:Table, reified V:VO> colVO(field:KProperty1<T, VO>, alias:KProperty1<V, VO>):Select{
+    inline fun <reified T:Table, reified V:DTO> colVO(field:KProperty1<T, DTO>, alias:KProperty1<V, DTO>):Select{
         if(field.returnType != alias.returnType) throw Throwable("filed&alias mismatch: ${field.returnType} | ${alias.returnType}")
         data.addRsVO<V>()
         data.field().add(Field(FieldType.Projection,T::class.simpleName!!, field.name, alias.name))
         return this
     }
-    inline fun <reified T:Table, reified V:VO> colVOSum(field:KProperty1<T, VO>, alias:KProperty1<V, VO>):Select{
+    inline fun <reified T:Table, reified V:DTO> colVOSum(field:KProperty1<T, DTO>, alias:KProperty1<V, DTO>):Select{
         if(field.returnType != alias.returnType) throw Throwable("filed&alias mismatch: ${field.returnType} | ${alias.returnType}")
         data.addRsVO<V>()
         data.field().add(Field(FieldType.Projection,T::class.simpleName!!, field.name, alias.name))
         return this
     }
-    inline fun <reified T:Table, reified V:VO> count(field:KProperty1<T, *>, alias:KProperty1<V, Int>):SelectFrom{
+    inline fun <reified T:Table, reified V:DTO> count(field:KProperty1<T, *>, alias:KProperty1<V, Int>):SelectFrom{
         data.addRsVO<V>()
         data.field().add(Field(FieldType.Count,T::class.simpleName!!, field.name, alias.name))
         return SelectFrom(data)
     }
-    inline fun <reified T:Table, reified V:VO> countDistinct(field:KProperty1<T, *>, alias:KProperty1<V, Int>):SelectFrom{
+    inline fun <reified T:Table, reified V:DTO> countDistinct(field:KProperty1<T, *>, alias:KProperty1<V, Int>):SelectFrom{
         data.addRsVO<V>()
         data.field().add(Field(FieldType.CountDistinct,T::class.simpleName!!, field.name, alias.name))
         return SelectFrom(data)
     }
-    inline fun <reified V:VO> countAll(alias:KProperty1<V, Int>):SelectFrom{
+    inline fun <reified V:DTO> countAll(alias:KProperty1<V, Int>):SelectFrom{
         data.addRsVO<V>()
         data.field().add(Field(FieldType.CountAll,"", "", alias.name))
         return SelectFrom(data)

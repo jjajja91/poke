@@ -28,19 +28,19 @@ inline fun WhereAnd.limit(limit:Int):WhereAnd = also {data.limit = limit}
 inline fun From.limit(limit:Int):From = also {data.limit = limit}
 inline fun WhereAnd.offset(offset:Int):WhereAnd = also {data.offset = offset}
 inline fun From.offset(offset:Int):From = also {data.offset = offset}
-inline fun <reified V:VO> WhereAnd.limit(limit:KProperty1<V, Int>):WhereAnd = also{
+inline fun <reified V:DTO> WhereAnd.limit(limit:KProperty1<V, Int>):WhereAnd = also{
     data.addBind<V>(limit.name)
     data.limit = limit.name
 }
-inline fun <reified V:VO> From.limit(limit:KProperty1<V, Int>):From = also{
+inline fun <reified V:DTO> From.limit(limit:KProperty1<V, Int>):From = also{
     data.addBind<V>(limit.name)
     data.limit = limit.name
 }
-inline fun <reified V:VO> WhereAnd.offset(offset:KProperty1<V, Int>):WhereAnd = also{
+inline fun <reified V:DTO> WhereAnd.offset(offset:KProperty1<V, Int>):WhereAnd = also{
     data.addBind<V>(offset.name)
     data.offset = offset.name
 }
-inline fun <reified V:VO> From.offset(offset:KProperty1<V, Int>):From = also{
+inline fun <reified V:DTO> From.offset(offset:KProperty1<V, Int>):From = also{
     data.addBind<V>(offset.name)
     data.offset = offset.name
 }

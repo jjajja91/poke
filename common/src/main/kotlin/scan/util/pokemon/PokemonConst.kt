@@ -1,7 +1,5 @@
 package scan.util.pokemon
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import scan.dto.PokemonListDTO
@@ -30,6 +28,3 @@ object PokemonConst {
         return idSet
     }
 }
-
-inline fun <reified T : Any> ObjectMapper.toJson(value: T): String = writeValueAsString(value)
-inline fun <reified T : Any> ObjectMapper.fromJson(json: String):T = readValue<T>(json)

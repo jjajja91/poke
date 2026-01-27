@@ -2,7 +2,7 @@
 
 package scan.sql.common
 
-import scan.sql.VO
+import scan.sql.DTO
 import kotlin.reflect.KClass
 
 class QueryData(val type:QueryType){
@@ -14,21 +14,21 @@ class QueryData(val type:QueryType){
     @PublishedApi internal inline fun binds():ArrayList<Bind>
     = _binds ?: arrayListOf<Bind>().also{_binds = it}
 
-    @PublishedApi internal var rsType:KClass<out VO>? = null
-    @PublishedApi internal inline fun <reified V:VO> addRsVO(){
+    @PublishedApi internal var rsType:KClass<out DTO>? = null
+    @PublishedApi internal inline fun <reified V:DTO> addRsVO(){
         if(rsType == null) rsType = V::class else{
             if(rsType != V::class) throw Throwable("recordSet type is not match: ${rsType?.simpleName} != ${V::class.simpleName}")
         }
     }
-    @PublishedApi internal var paramType:KClass<out VO>? = null
-    @PublishedApi internal inline fun <reified V:VO> addBind(bind:Bind){
+    @PublishedApi internal var paramType:KClass<out DTO>? = null
+    @PublishedApi internal inline fun <reified V:DTO> addBind(bind:Bind){
         if(paramType == null) paramType = V::class else{
             if(paramType != V::class) throw Throwable("param type is not match: ${paramType?.simpleName} != ${V::class.simpleName}")
         }
         binds().find{it.name == bind.name}?.let{ throw Throwable("bind name is duplicated: ${bind.name}") }
         binds().add(bind)
     }
-    @PublishedApi internal inline fun <reified V:VO> addBind(bind:String) = addBind<V>(Bind(bind))
+    @PublishedApi internal inline fun <reified V:DTO> addBind(bind:String) = addBind<V>(Bind(bind))
     @PublishedApi internal var _into:String = ""
     @PublishedApi internal var _insertBulk:Boolean = false
     @PublishedApi internal var _values:ArrayList<Field>? = null

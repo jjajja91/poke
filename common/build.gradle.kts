@@ -56,6 +56,7 @@ dependencies {
     api(libs.reactor.netty.http)
 
     api(libs.spring.data.jpa)
+    api(libs.spring.r2dbc)
     api(libs.spring.orm)
     api(libs.spring.tx)
     api(libs.jakarta.persistence)
