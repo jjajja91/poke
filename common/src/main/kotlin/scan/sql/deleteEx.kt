@@ -8,5 +8,5 @@ import scan.sql.common.QueryType
 import kotlin.reflect.KClass
 
 inline fun <reified T:Table> delete(table:KClass<T>):From = From(QueryData(QueryType.DELETE)).apply{
-    data._table = table.simpleName!!
+    data._table = table.tableName()
 }

@@ -1,14 +1,23 @@
 spring:
   datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:app}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: ${DB_USER:app}
     password: ${DB_PASSWORD:app}
 
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.r2dbc.R2dbcDataAutoConfiguration
+
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: validate
     properties:
-      hibernate.jdbc.time_zone: Asia/Seoul
+      hibernate:
+        format_sql: true
+        jdbc.time_zone: Asia/Seoul
 
   flyway:
     enabled: true

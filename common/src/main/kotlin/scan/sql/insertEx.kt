@@ -8,5 +8,9 @@ import scan.sql.insert.Insert
 import kotlin.reflect.KClass
 
 inline fun <reified T:Table> insert(table:KClass<T>):Insert = Insert(QueryData(QueryType.INSERT)).apply{
-    data._into = table.simpleName!!
+    data._into = table.tableName()
+}
+inline fun <reified T:Table> insertBulk(table:KClass<T>):Insert = Insert(QueryData(QueryType.INSERT)).apply{
+    data._insertBulk = true
+    data._into = table.tableName()
 }

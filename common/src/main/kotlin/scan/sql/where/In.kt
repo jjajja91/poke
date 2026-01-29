@@ -4,6 +4,7 @@ import scan.sql.common.Bind
 import scan.sql.common.BindQuery
 import scan.sql.DTO
 import scan.sql.Table
+import scan.sql.tableName
 import kotlin.reflect.KProperty1
 
 class In(val table:String, val field:String, val bind:String):BindQuery{
@@ -12,11 +13,11 @@ class In(val table:String, val field:String, val bind:String):BindQuery{
 }
 inline fun <reified T:Table, reified V:DTO> Where.InStr(field:KProperty1<T, String>, bind:KProperty1<V, ArrayList<String>>):WhereAnd{
     data.addBind<V>(Bind(bind.name))
-    data.where().add(In(T::class.simpleName!!, field.name, bind.name))
+    data.where().add(In(T::class.tableName(), field.name, bind.name))
     return WhereAnd(data)
 }
 inline fun <reified T:Table, reified V:DTO> Where.InNumber(field:KProperty1<T, Number>, bind:KProperty1<V, ArrayList<out Number>>):WhereAnd{
     data.addBind<V>(Bind(bind.name))
-    data.where().add(In(T::class.simpleName!!, field.name, bind.name))
+    data.where().add(In(T::class.tableName(), field.name, bind.name))
     return WhereAnd(data)
 }

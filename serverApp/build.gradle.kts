@@ -47,13 +47,15 @@ tasks.withType<JavaCompile>().configureEach {
 
 
 dependencies {
-    api(libs.spring.boot.starter.web)
-    api(libs.spring.boot.starter.validation)
-    api(libs.spring.boot.starter.data.jpa)
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.spring.boot.starter.validation)
+    implementation(libs.spring.boot.starter.data.jpa)
+    implementation(libs.spring.boot.starter.data.r2dbc)
+    implementation(libs.r2dbc.mysql)
     runtimeOnly(libs.flyway.postgresql)
     runtimeOnly(libs.flyway.mysql)
     runtimeOnly(libs.postgresql.driver)
     runtimeOnly(libs.mysql.connector.j)
-    api(libs.flyway.core)
-    implementation(project(":serverPokemon"))
+    implementation(libs.flyway.core)
+    implementation(project(":serverType"))
 }

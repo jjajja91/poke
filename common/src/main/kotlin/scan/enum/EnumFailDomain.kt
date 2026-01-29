@@ -7,4 +7,7 @@ enum class EnumFailDomain(val tableName: String, val apiKey:String) {
     ABILITY("_ability", "ability"),
     POKEMON("pokemon", "pokemon"),
     POKEMON_SPECIES("pokemon", "pokemon-species");
+    companion object {
+        fun byTableName(tableName: String): EnumFailDomain = entries.find { it.tableName == tableName }?:throw Throwable("not found EnumFailDomain: $tableName")
+    }
 }

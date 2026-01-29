@@ -1,6 +1,6 @@
-package scan.batch
+package scan.batch.dto
 
-data class FailDetailDTO(
+data class DTOFailDetail(
     val message:String,
     val type:String,
     val cause:String

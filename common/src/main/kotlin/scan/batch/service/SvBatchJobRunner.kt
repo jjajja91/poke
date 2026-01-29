@@ -1,4 +1,4 @@
-package scan.batch
+package scan.batch.service
 
 import kotlinx.coroutines.Dispatchers
 import org.springframework.stereotype.Service

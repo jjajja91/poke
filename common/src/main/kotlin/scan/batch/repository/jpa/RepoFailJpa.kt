@@ -1,31 +1,35 @@
-package scan.batch
+package scan.batch.repository.jpa
 
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
+import org.springframework.context.annotation.Profile
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
+import scan.batch.entity.jpa.EntFail
 
-interface RepoFail : JpaRepository<EntFail, Long>, RepoFailCustom {
+interface RepoFailJpa : JpaRepository<EntFail, Long>, RepoFailJpaCustom {
     fun findAllByDomain(domain: String): List<EntFail>
     fun deleteAllByDomainAndRefIdIn(domain: String, refIds: Collection<Int>): Long
     fun deleteAllByDomain(domain: String): Long
 }
 
-interface RepoFailCustom {
+interface RepoFailJpaCustom {
     fun upsertAll(rows: List<FailRow>): Int
 }
 
 data class FailRow(
     val domain: String,
-    val id: Int,
+    val refId: Int,
     val errorJson: String
 )
 
 @Repository
-class RepoFailImpl(
-    @PersistenceContext private val em: EntityManager
-) : RepoFailCustom {
+@Profile("jpa")
+class RepoFailJpaImpl: RepoFailJpaCustom {
+
+    @PersistenceContext
+    private lateinit var em: EntityManager
 
     @Transactional
     override fun upsertAll(rows: List<FailRow>): Int {
@@ -44,7 +48,7 @@ class RepoFailImpl(
         var idx = 1
         rows.forEach { r ->
             q.setParameter(idx++, r.domain)
-            q.setParameter(idx++, r.id)
+            q.setParameter(idx++, r.refId)
             q.setParameter(idx++, r.errorJson)
         }
         return q.executeUpdate()

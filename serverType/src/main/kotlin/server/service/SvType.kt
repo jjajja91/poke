@@ -1,31 +1,29 @@
 package server.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
-import scan.batch.SvBatch
-import server.entity.EntType
+import scan.batch.service.SvBatch
 import scan.enum.EnumFailDomain
 import scan.enum.EnumLanguage
-import server.repository.RepoType
 import scan.util.coroutine.retryAwaitAll
 import scan.util.pokemon.PokemonConst
 import scan.dto.PokemonNameUrlDTO
-import scan.util.pokemon.toJson
-import server.dto.PokemonTypeDTO
-import server.dto.PokemonTypeRelationDTO
+import server.dto.DTOPokemonApiType
+import server.dto.DTOType
+import server.dto.DTOTypeRelation
+import server.dto.DTOTypeRelationDamage
+import server.gateway.GwType
 
 @Service
 class SvType(
-    private val typeRepository: RepoType,
-    private val mapper: ObjectMapper,
     private val pokemonWebClient: WebClient,
-    private val svBatch: SvBatch
+    private val svBatch: SvBatch,
+    private val typeGateway: GwType
 ) {
     private val DOMAIN = EnumFailDomain.TYPE
-    fun findAll():List<EntType> {
-        return typeRepository.findAll()
+    suspend fun findAll():List<DTOType> {
+        return typeGateway.findAll()
     }
     suspend fun addAllForce() {
         svBatch.deleteAllFail(DOMAIN)
@@ -36,9 +34,7 @@ class SvType(
         val failList = svBatch.findAllFail(DOMAIN)
         addList(failList.map { it.refId }.toSet())
     }
-    fun deleteAll() {
-        typeRepository.deleteAllInBatch()
-    }
+    suspend fun deleteAll() = typeGateway.deleteAll()
     private suspend fun addList(idSet:Set<Int>) {
         if (idSet.isEmpty()) return
         val result = idSet.retryAwaitAll(
@@ -47,16 +43,16 @@ class SvType(
             item(id)
         }
         svBatch.batchAll(DOMAIN, result) {
-            typeRepository.saveAll(it)
+            typeGateway.saveAll(it)
         }
     }
-    private suspend fun item(id: Int): EntType {
+    private suspend fun item(id: Int): DTOType {
         require(id in PokemonConst.TYPE_ID_RANGE) { "type id out of range: $id" }
         val item = pokemonWebClient.get()
             .uri("/${DOMAIN.apiKey}/${id}/")
             .retrieve()
-            .awaitBody<PokemonTypeDTO>()
-        val relationMap = PokemonConst.TYPE_ID_RANGE.associateWith { PokemonTypeRelationDTO(1.0, 1.0) }.toMutableMap()
+            .awaitBody<DTOPokemonApiType>()
+        val relationMap = PokemonConst.TYPE_ID_RANGE.associateWith { DTOTypeRelationDamage(1.0, 1.0) }.toMutableMap()
         applyTo(relationMap, item.damage_relations.double_damage_to, 2.0) { dto, v -> dto.damageTo = v }
         applyTo(relationMap, item.damage_relations.double_damage_from, 2.0) { dto, v -> dto.damageFrom = v }
         applyTo(relationMap, item.damage_relations.half_damage_to,     0.5) { dto, v -> dto.damageTo = v }
@@ -64,22 +60,22 @@ class SvType(
         applyTo(relationMap, item.damage_relations.no_damage_to,       0.0) { dto, v -> dto.damageTo = v }
         applyTo(relationMap, item.damage_relations.no_damage_from,     0.0) { dto, v -> dto.damageFrom = v }
         val nameByLang = item.names.associateBy({ it.language.name }, { it.name })
-        val entity = EntType(
-            id = item.id,
+        val entity = DTOType(
+            typeId = item.id,
             nameEn = nameByLang[EnumLanguage.EN.key] ?: item.name,
             nameKr = nameByLang[EnumLanguage.KR.key] ?: item.name,
             nameJp = nameByLang[EnumLanguage.JP.key] ?: nameByLang[EnumLanguage.JP2.key] ?: item.name,
-            contents = mapper.toJson(relationMap)
+            relation = DTOTypeRelation(relationMap)
         )
         println(entity)
         return entity
     }
     // 맵 순회해서 데미지 반영하는 함수
     private fun applyTo(
-        relationMap: MutableMap<Int, PokemonTypeRelationDTO>,
+        relationMap: MutableMap<Int, DTOTypeRelationDamage>,
         urls: List<PokemonNameUrlDTO>,
         value: Double,
-        setter: (PokemonTypeRelationDTO, Double) -> Unit
+        setter: (DTOTypeRelationDamage, Double) -> Unit
     ) {
         for (u in urls) {
             val id = PokemonConst.getIdForUrl(u.url) ?: continue

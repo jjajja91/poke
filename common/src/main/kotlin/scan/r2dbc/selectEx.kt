@@ -10,6 +10,7 @@ import scan.sql.DTO
 import kotlinx.coroutines.flow.Flow
 import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.r2dbc.core.flow
+import scan.sql.toMap
 
 @PublishedApi internal inline fun DatabaseClient.selectCache(query:Query, param:Map<String, Any?>, isOptional:Boolean, block:BF):SP{
     if(query.type != QueryType.SELECT) throw Throwable("query type must be SELECT")
@@ -50,6 +51,12 @@ inline fun DatabaseClient.selectMap(query:Query, param:Map<String, Any?>, isOpti
     if(query.binds == null) throw Throwable("no binding")
     return selectCache(query, param, isOptional, mapBinder).fetch().flow()
 }
+inline fun DatabaseClient.selectMap(mapper: ObjectMapper, query:Query, param:DTO, isOptional:Boolean = false):Flow<Map<String, Any>>{
+    if(param::class != query.paramType) throw Throwable("param type is not match")
+    return selectMap(query, mapper.toMap(param), isOptional)
+}
 inline fun <reified R:DTO> DatabaseClient.select(mapper: ObjectMapper, query:Query):Flow<R> = selectMap(query).toDTO(mapper)
 inline fun <reified R:DTO> DatabaseClient.select(mapper: ObjectMapper, query:Query, param:Map<String, Any>, isOptional:Boolean = false):Flow<R>
 = selectMap(query, param, isOptional).toDTO(mapper)
+inline fun <reified R:DTO> DatabaseClient.select(mapper: ObjectMapper, query:Query, param:DTO, isOptional:Boolean = false):Flow<R>
+= selectMap(mapper, query, param, isOptional).toDTO(mapper)

@@ -1,10 +1,10 @@
+spring:
+  application:
+    name: server-app
+
+  profiles:
+    active: r2dbc # 기본값 (필요시 r2dbc로 변경)
+
 logging:
   level:
-    org.hibernate.SQL: info
-    org.hibernate.orm.jdbc.bind: info
-
-remote:
-  insecure-ssl: true
-
-server:
-  port: 8080
+    org.springframework: INFO

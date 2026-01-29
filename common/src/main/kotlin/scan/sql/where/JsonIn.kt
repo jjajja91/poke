@@ -4,6 +4,7 @@ import scan.sql.common.Bind
 import scan.sql.common.BindQuery
 import scan.sql.DTO
 import scan.sql.Table
+import scan.sql.tableName
 import kotlin.reflect.KProperty1
 
 class JsonIn(val table:String, val field:String, val key:String, val bind:String):BindQuery{
@@ -12,6 +13,6 @@ class JsonIn(val table:String, val field:String, val key:String, val bind:String
 }
 inline fun <reified T:Table, reified TV:DTO, reified V:DTO> Where.JsonInNum(field:KProperty1<T, TV>, key: KProperty1<TV, ArrayList<out Number>>, bind:KProperty1<V, Number>):WhereAnd{
     data.addBind<V>(Bind(bind.name){ it.toString() })
-    data.where().add(JsonIn(T::class.simpleName!!, field.name, key.name, bind.name))
+    data.where().add(JsonIn(T::class.tableName(), field.name, key.name, bind.name))
     return WhereAnd(data)
 }

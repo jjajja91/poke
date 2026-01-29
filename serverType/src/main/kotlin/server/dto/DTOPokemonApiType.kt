@@ -3,7 +3,7 @@ package server.dto
 import scan.dto.PokemonNameLanguageDTO
 import scan.dto.PokemonNameUrlDTO
 
-data class PokemonTypeDTO(
+data class DTOPokemonApiType(
     val id: Int,
     val name: String,
     val names: List<PokemonNameLanguageDTO>,
@@ -17,9 +17,4 @@ data class PokemonDamageRelationDTO(
     val half_damage_to: List<PokemonNameUrlDTO>,
     val no_damage_from: List<PokemonNameUrlDTO>,
     val no_damage_to: List<PokemonNameUrlDTO>,
-)
-
-data class PokemonTypeRelationDTO(
-    var damageFrom: Double,
-    var damageTo: Double
 )

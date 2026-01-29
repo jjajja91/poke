@@ -4,16 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
-import scan.batch.SvBatch
-import scan.batch.SvBatchJobRunner
+import scan.batch.service.SvBatch
+import scan.batch.service.SvBatchJobRunner
 import server.entity.EntMove
 import scan.enum.EnumFailDomain
 import scan.enum.EnumLanguage
+import scan.sql.toJson
 import server.repository.RepoMove
 import scan.util.coroutine.BatchResult
 import scan.util.coroutine.retryAwaitAll
 import scan.util.pokemon.PokemonConst
-import scan.util.pokemon.toJson
 import server.dto.PokemonMoveDTO
 import server.dto.PokemonMoveDetailDTO
 

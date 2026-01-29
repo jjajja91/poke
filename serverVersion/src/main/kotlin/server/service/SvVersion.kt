@@ -5,7 +5,7 @@ import kotlinx.coroutines.withContext
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
-import scan.batch.SvBatch
+import scan.batch.service.SvBatch
 import server.entity.EntVersion
 import scan.enum.EnumFailDomain
 import scan.enum.EnumLanguage
