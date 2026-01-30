@@ -1,6 +1,9 @@
-package server.entity
+package server.entity.jpa
 
-import jakarta.persistence.*
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.Id
+import jakarta.persistence.Table
 import java.time.LocalDateTime
 
 @Entity
@@ -43,17 +46,6 @@ class EntMove(
             타입: $typeId
             기술 이름: $nameKr(${nameJp})
             기술 설명: $descriptionKr
-        """.trimIndent()
-    }
-    fun getNameLanguage(): String {
-        return """
-            번호: $id <br>
-            영어 이름: $nameEn <br>
-            영어 설명: $descriptionEn <br>
-            한국 이름: $nameKr <br>
-            한국 설명: $descriptionKr <br>d
-            일본 이름: $nameJp <br>
-            일본 설명: $descriptionJp
         """.trimIndent()
     }
 }

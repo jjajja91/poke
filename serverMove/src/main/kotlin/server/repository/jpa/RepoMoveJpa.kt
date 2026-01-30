@@ -1,8 +1,8 @@
-package server.repository
+package server.repository.jpa
 
 import org.springframework.data.jpa.repository.JpaRepository
-import server.entity.EntMove
+import server.entity.jpa.EntMove
 
-interface RepoMove : JpaRepository<EntMove, Int> {
+interface RepoMoveJpa : JpaRepository<EntMove, Int> {
     fun findByNameEnIgnoreCase(nameEn: String): EntMove?
 }

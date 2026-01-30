@@ -4,7 +4,7 @@ import scan.dto.PokemonEntryDTO
 import scan.dto.PokemonNameLanguageDTO
 import scan.dto.PokemonNameUrlDTO
 
-data class PokemonMoveDTO(
+data class DTOPokemonApiMove(
     val id: Int,
     val name: String,
     val names: List<PokemonNameLanguageDTO>,
@@ -14,11 +14,4 @@ data class PokemonMoveDTO(
     val power: Int,
     val pp: Int,
     val type: PokemonNameUrlDTO
-)
-
-data class PokemonMoveDetailDTO(
-    val accuracy: Int,
-    val power: Int,
-    val pp: Int,
-    val damageClass: Int
 )
