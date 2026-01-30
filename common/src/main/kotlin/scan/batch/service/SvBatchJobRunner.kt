@@ -3,12 +3,9 @@ package scan.batch.service
 import kotlinx.coroutines.Dispatchers
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import scan.enum.EnumFailDomain
-import scan.util.coroutine.BatchResult
 import scan.util.coroutine.AppScope
 import scan.util.coroutine.JobStatusStore
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicInteger
 
 @Service
 class SvBatchJobRunner(

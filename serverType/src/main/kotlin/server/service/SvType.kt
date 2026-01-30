@@ -1,6 +1,5 @@
 package server.service
 
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import scan.batch.service.BatchStrategy
 import scan.batch.service.SvBatchJobRunner
