@@ -57,7 +57,5 @@ dependencies {
     runtimeOnly(libs.postgresql.driver)
     runtimeOnly(libs.mysql.connector.j)
     implementation(libs.flyway.core)
-    implementation(project(":serverMove"))
-    implementation(project(":serverVersion"))
-    implementation(project(":serverAbility"))
+    implementation(project(":serverPokemon"))
 }
