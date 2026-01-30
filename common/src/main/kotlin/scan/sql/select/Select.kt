@@ -9,7 +9,7 @@ import scan.sql.common.QueryData
 import scan.sql.DTO
 import scan.sql.Table
 import scan.sql.tableName
-import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.reflect.KClass
 import kotlin.reflect.KProperty1
 
@@ -38,7 +38,7 @@ value class Select(@PublishedApi internal val data:QueryData){
         data.field().add(Field(FieldType.Projection,T::class.tableName(), field.name, alias.name))
         return this
     }
-    inline fun <reified T:Table, reified V:DTO> colDate(field:KProperty1<T, LocalDate>, alias:KProperty1<V, LocalDate>):Select{
+    inline fun <reified T:Table, reified V:DTO> colDate(field:KProperty1<T, LocalDateTime>, alias:KProperty1<V, LocalDateTime>):Select{
         data.addRsVO<V>()
         data.field().add(Field(FieldType.Projection,T::class.tableName(), field.name, alias.name))
         return this

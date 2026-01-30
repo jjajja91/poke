@@ -30,7 +30,7 @@ class SvMove(
         val move = moveRepository.findByNameEnIgnoreCase(name) ?: throw Throwable("Move $name not found")
         return move
     }
-    fun addAllForce():String {
+    suspend fun addAllForce():String {
         return svBatchJobRunner.startBatchJob(
             DOMAIN,
             {

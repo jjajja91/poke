@@ -1,6 +1,7 @@
 package scan.batch.service
 
 import kotlinx.coroutines.Dispatchers
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import scan.enum.EnumFailDomain
 import scan.util.coroutine.BatchResult
@@ -15,37 +16,38 @@ class SvBatchJobRunner(
     private val statusStore: JobStatusStore,
     private val svBatch: SvBatch
 ) {
-    fun <V> startBatchJob(
-        domain: EnumFailDomain,
-        resultBlock:suspend () -> BatchResult<Int, V>,
-        saveBlock:(List<V>) -> Unit
-    ): String {
+
+    private val log = LoggerFactory.getLogger(javaClass)
+    fun <V> startBatchJob(strategy: BatchStrategy<V>, isForce: Boolean): String {
         val jobId = UUID.randomUUID().toString()
+        val domain = strategy.domain
         val name = "${domain.name}:batchJob"
         statusStore.start(jobId, name = name)
+        log.info("[배치 시작] 도메인:${domain.name}, ID: $jobId")
         appScope.launchApp("$name:$jobId", Dispatchers.IO) {
-            runBatchJob(jobId, domain, resultBlock, saveBlock)
+            runBatchJob(jobId, strategy, isForce)
         }
         return jobId
     }
-    private suspend fun <V> runBatchJob(
-        jobId: String,
-        domain: EnumFailDomain,
-        resultBlock:suspend() -> BatchResult<Int, V>,
-        saveBlock:(List<V>) -> Unit
-    ) {
-        val successCount = AtomicInteger(0)
-        val failCount = AtomicInteger(0)
+    private suspend fun <V> runBatchJob(jobId: String, strategy: BatchStrategy<V>, isForce: Boolean) {
+        val domain = strategy.domain
         try {
-            val result = resultBlock()
-            successCount.set(result.successList.size)
-            failCount.set(result.failList.size)
-            svBatch.batchAll(domain, result) { sl ->
-                saveBlock(sl)
+            if (isForce) {
+                strategy.clearData()
+                svBatch.deleteAllFail(domain)
             }
-            statusStore.done(jobId, success = successCount.get(), fail = failCount.get())
+            val idSet = if (isForce) strategy.getIdSet() else svBatch.findAllFail(domain).map { it.refId }.toSet()
+            log.info("[배치] 도메인:${domain.name}, ID: $jobId, ID: ${idSet.joinToString()}")
+            if (idSet.isEmpty()) {
+                statusStore.done(jobId, success = 0, fail = 0)
+                return
+            }
+            val result = strategy.fetchData(idSet)
+            svBatch.batchAll(domain, result) { strategy.saveData(it) }
+            statusStore.done(jobId, success = result.successList.size, fail = result.failList.size)
         } catch (t: Throwable) {
-            statusStore.failed(jobId, success = successCount.get(), fail = failCount.get(), message = t.message)
+            log.error("[배치 에러] 도메인:${domain.name}, ID: $jobId, ${t.message ?: t.localizedMessage}")
+            statusStore.failed(jobId, success = 0, fail = 0, message = t.message)
             throw t
         }
     }

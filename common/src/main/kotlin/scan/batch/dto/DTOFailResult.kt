@@ -1,12 +1,12 @@
 package scan.batch.dto
 
 import scan.sql.DTO
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 class DTOFailResult(
         val failRowid : Long,
         val domain : String,
         val id : Int,
         val error : String,
-        val updateDate: LocalDate
+        val updateDate: LocalDateTime
 ): DTO

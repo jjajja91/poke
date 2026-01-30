@@ -1,86 +1,52 @@
 package server.service
 
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBody
-import scan.batch.service.SvBatch
+import scan.batch.service.BatchStrategy
+import scan.batch.service.SvBatchJobRunner
 import scan.enum.EnumFailDomain
-import scan.enum.EnumLanguage
+import scan.util.coroutine.BatchResult
 import scan.util.coroutine.retryAwaitAll
 import scan.util.pokemon.PokemonConst
-import scan.dto.PokemonNameUrlDTO
-import server.dto.DTOPokemonApiType
 import server.dto.DTOType
-import server.dto.DTOTypeRelation
-import server.dto.DTOTypeRelationDamage
 import server.gateway.GwType
 
 @Service
 class SvType(
-    private val pokemonWebClient: WebClient,
-    private val svBatch: SvBatch,
-    private val typeGateway: GwType
+    private val typeGateway: GwType,
+    private val pokemonApiType: PokemonApiType,
+    private val batchJobRunner: SvBatchJobRunner
 ) {
-    private val DOMAIN = EnumFailDomain.TYPE
-    suspend fun findAll():List<DTOType> {
-        return typeGateway.findAll()
-    }
-    suspend fun addAllForce() {
-        svBatch.deleteAllFail(DOMAIN)
-        deleteAll()
-        addList(PokemonConst.TYPE_ID_SET)
-    }
-    suspend fun addAllCheck() {
-        val failList = svBatch.findAllFail(DOMAIN)
-        addList(failList.map { it.refId }.toSet())
-    }
-    suspend fun deleteAll() = typeGateway.deleteAll()
-    private suspend fun addList(idSet:Set<Int>) {
-        if (idSet.isEmpty()) return
-        val result = idSet.retryAwaitAll(
-            retry = 3, concurrency = 6, delayMs = 3000
-        ) { id ->
-            item(id)
+    private val typeBatchStrategy = object : BatchStrategy<DTOType> {
+        override val domain = EnumFailDomain.TYPE
+
+        override suspend fun getIdSet(): Set<Int> = PokemonConst.TYPE_ID_SET
+
+        override suspend fun fetchData(idSet: Set<Int>): BatchResult<Int, DTOType> {
+            return if (idSet.isEmpty()) BatchResult(emptyList(), emptyList())
+            else idSet.retryAwaitAll(
+                retry = 3,
+                concurrency = 6,
+                delayMs = 3000
+            ) { id ->
+                pokemonApiType.fetchType(id)
+            }
         }
-        svBatch.batchAll(DOMAIN, result) {
-            typeGateway.saveAll(it)
+
+        override suspend fun saveData(list: List<DTOType>) {
+            typeGateway.saveAll(list)
         }
-    }
-    private suspend fun item(id: Int): DTOType {
-        require(id in PokemonConst.TYPE_ID_RANGE) { "type id out of range: $id" }
-        val item = pokemonWebClient.get()
-            .uri("/${DOMAIN.apiKey}/${id}/")
-            .retrieve()
-            .awaitBody<DTOPokemonApiType>()
-        val relationMap = PokemonConst.TYPE_ID_RANGE.associateWith { DTOTypeRelationDamage(1.0, 1.0) }.toMutableMap()
-        applyTo(relationMap, item.damage_relations.double_damage_to, 2.0) { dto, v -> dto.damageTo = v }
-        applyTo(relationMap, item.damage_relations.double_damage_from, 2.0) { dto, v -> dto.damageFrom = v }
-        applyTo(relationMap, item.damage_relations.half_damage_to,     0.5) { dto, v -> dto.damageTo = v }
-        applyTo(relationMap, item.damage_relations.half_damage_from,   0.5) { dto, v -> dto.damageFrom = v }
-        applyTo(relationMap, item.damage_relations.no_damage_to,       0.0) { dto, v -> dto.damageTo = v }
-        applyTo(relationMap, item.damage_relations.no_damage_from,     0.0) { dto, v -> dto.damageFrom = v }
-        val nameByLang = item.names.associateBy({ it.language.name }, { it.name })
-        val entity = DTOType(
-            typeId = item.id,
-            nameEn = nameByLang[EnumLanguage.EN.key] ?: item.name,
-            nameKr = nameByLang[EnumLanguage.KR.key] ?: item.name,
-            nameJp = nameByLang[EnumLanguage.JP.key] ?: nameByLang[EnumLanguage.JP2.key] ?: item.name,
-            relation = DTOTypeRelation(relationMap)
-        )
-        println(entity)
-        return entity
-    }
-    // 맵 순회해서 데미지 반영하는 함수
-    private fun applyTo(
-        relationMap: MutableMap<Int, DTOTypeRelationDamage>,
-        urls: List<PokemonNameUrlDTO>,
-        value: Double,
-        setter: (DTOTypeRelationDamage, Double) -> Unit
-    ) {
-        for (u in urls) {
-            val id = PokemonConst.getIdForUrl(u.url) ?: continue
-            val dto = relationMap[id] ?: continue
-            setter(dto, value)
+
+        override suspend fun clearData() {
+            typeGateway.deleteAll()
         }
     }
+    suspend fun addAllForce(): String = batchJobRunner.startBatchJob(
+        strategy = typeBatchStrategy,
+        isForce = true
+    )
+    suspend fun addAllCheck(): String = batchJobRunner.startBatchJob(
+        strategy = typeBatchStrategy,
+        isForce = false
+    )
 }

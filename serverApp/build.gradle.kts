@@ -58,4 +58,5 @@ dependencies {
     runtimeOnly(libs.mysql.connector.j)
     implementation(libs.flyway.core)
     implementation(project(":serverType"))
+    implementation(project(":serverVersion"))
 }

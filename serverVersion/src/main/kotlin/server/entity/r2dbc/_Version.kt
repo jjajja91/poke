@@ -3,11 +3,11 @@ package server.entity.r2dbc
 import scan.sql.Table
 import java.time.LocalDateTime
 
-class _Type(
-    val _type_rowid:Int,
+class _Version(
+    val _version_rowid: Int,
     val name_kr: String,
     val name_jp: String,
     val name_en: String,
-    val contents: String,
-    val regdate: LocalDateTime
+    val groupkey: String,
+    val regdate: LocalDateTime,
 ): Table

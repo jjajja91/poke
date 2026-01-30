@@ -28,7 +28,7 @@ internal class RepoTypeR2dbc(
             qAdd,
             _Type::_type_rowid,
             TypeAddParam(
-                typeId = param.typeId,
+                typeRowid = param.typeRowid,
                 nameKr = param.nameKr,
                 nameJp = param.nameJp,
                 nameEn = param.nameEn,
@@ -44,7 +44,7 @@ internal class RepoTypeR2dbc(
             qAddAll,
             ArrayList(param.map {
                 TypeAddParam(
-                    typeId = it.typeId,
+                    typeRowid = it.typeRowid,
                     nameKr = it.nameKr,
                     nameJp = it.nameJp,
                     nameEn = it.nameEn,
@@ -54,14 +54,14 @@ internal class RepoTypeR2dbc(
         )
     }
     private class TypeAddParam(
-        val typeId : Int,
+        val typeRowid : Int,
         val nameKr : String,
         val nameJp : String,
         val nameEn : String,
         val contents : String
     ):DTO
     private val qAdd = scan.sql.insert(_Type::class)
-        .colNum(_Type::_type_rowid, TypeAddParam::typeId)
+        .colNum(_Type::_type_rowid, TypeAddParam::typeRowid)
         .colStr(_Type::name_kr, TypeAddParam::nameKr)
         .colStr(_Type::name_jp, TypeAddParam::nameJp)
         .colStr(_Type::name_en, TypeAddParam::nameEn)
@@ -70,7 +70,7 @@ internal class RepoTypeR2dbc(
         .build()
 
     private val qAddAll = scan.sql.insertBulk(_Type::class)
-        .colNum(_Type::_type_rowid, TypeAddParam::typeId)
+        .colNum(_Type::_type_rowid, TypeAddParam::typeRowid)
         .colStr(_Type::name_kr, TypeAddParam::nameKr)
         .colStr(_Type::name_jp, TypeAddParam::nameJp)
         .colStr(_Type::name_en, TypeAddParam::nameEn)

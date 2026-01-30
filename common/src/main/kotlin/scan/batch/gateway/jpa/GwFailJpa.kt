@@ -3,6 +3,7 @@ package scan.batch.gateway.jpa
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import scan.batch.dto.DTOFail
@@ -20,24 +21,31 @@ class GwFailJpa(
     private val repoFail: RepoFailJpa,
     private val mapper: ObjectMapper,
 ): GwFail {
-    override suspend fun deleteAllByDomainAndRefIdIn(domain:EnumFailDomain, refIds: List<Int>) = withContext(Dispatchers.IO) {
-        repoFail.deleteAllByDomainAndRefIdIn(domain.tableName, refIds.toSet())
+    private val log = LoggerFactory.getLogger(javaClass)
+    override suspend fun deleteAllByDomainAndRefIdIn(domain:EnumFailDomain, refIds: List<Int>):Long {
+        log.info("[DB/삭제/Fail/JPA] 도메인: ${domain.name}, ID: ${refIds.joinToString(",")}")
+        return repoFail.deleteAllByDomainAndRefIdIn(domain.tableName, refIds.toSet())
     }
-    override suspend fun deleteAllByDomain(domain:EnumFailDomain) = withContext(Dispatchers.IO) {
-        repoFail.deleteAllByDomain(domain.tableName)
+    override suspend fun deleteAllByDomain(domain:EnumFailDomain):Long {
+        log.info("[DB/삭제/Fail/JPA] 도메인: ${domain.name}")
+        return repoFail.deleteAllByDomain(domain.tableName)
     }
-    override suspend fun findAllByDomain(domain:EnumFailDomain):List<DTOFail> = withContext(Dispatchers.IO) {
-        repoFail.findAllByDomain(domain.tableName).map {
+    override suspend fun findAllByDomain(domain:EnumFailDomain):List<DTOFail> {
+        log.info("[DB/조회/Fail/JPA] 도메인: ${domain.name}")
+        return repoFail.findAllByDomain(domain.tableName).map {
             DTOFail(
                 id = it.id ?: throw Throwable("not found"),
                 domain = EnumFailDomain.byTableName(domain.tableName),
                 refId = it.refId,
                 error = mapper.fromJson(it.error),
-                updateDate = it.updateDate?.toLocalDate()
+                updateDate = it.updateDate
             )
         }
     }
-    override suspend fun saveAll(list:List<DTOFail>)= withContext(Dispatchers.IO) {
+    override suspend fun saveAll(list:List<DTOFail>) {
+        list.forEachIndexed { idx, fail ->
+            log.info("[DB/저장/Fail/JPA]-$idx 도메인:${fail.domain}, ID: ${fail.refId}, ERROR: ${fail.error.message}")
+        }
         repoFail.upsertAll(
             list.map {
                 FailRow(
@@ -47,6 +55,5 @@ class GwFailJpa(
                 )
             }
         )
-        Unit
     }
 }

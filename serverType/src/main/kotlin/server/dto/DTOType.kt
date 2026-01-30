@@ -1,15 +1,15 @@
 package server.dto
 
 import scan.sql.DTO
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 data class DTOType(
-    val typeId:Int,
+    val typeRowid:Int,
     val nameKr: String,
     val nameJp: String,
     val nameEn: String,
     val relation: DTOTypeRelation,
-    val regDate: LocalDate? = null
+    val regDate: LocalDateTime? = null
 ): DTO
 
 data class DTOTypeRelation(
