@@ -1,6 +1,5 @@
 package server.dto
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import scan.dto.PokemonEntryDTO
 import scan.dto.PokemonNameLanguageDTO
 import scan.dto.PokemonNameUrlDTO
