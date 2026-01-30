@@ -19,12 +19,12 @@ class CtrlAbility(
     suspend fun addAll() { service.addAllCheck() }
 
     @PostMapping("/add/all/force")
-    fun addAllForce(): ResponseEntity<Map<String, String>> {
-        val jobId = service.startAddAllForce()
+    suspend fun addAllForce(): ResponseEntity<Map<String, String>> {
+        val jobId = service.addAllForce()
         return ResponseEntity.accepted().body(mapOf("jobId" to jobId))
     }
     @GetMapping("/job/{jobId}")
-    fun job(@PathVariable jobId: String): ResponseEntity<Any> {
+    suspend fun job(@PathVariable jobId: String): ResponseEntity<Any> {
         val status = statusStore.get(jobId) ?: return ResponseEntity.notFound().build()
         return ResponseEntity.ok(status)
     }

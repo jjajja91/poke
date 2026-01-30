@@ -59,4 +59,5 @@ dependencies {
     implementation(libs.flyway.core)
     implementation(project(":serverType"))
     implementation(project(":serverVersion"))
+    implementation(project(":serverAbility"))
 }

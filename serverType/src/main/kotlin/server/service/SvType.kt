@@ -17,7 +17,7 @@ class SvType(
     private val pokemonApiType: PokemonApiType,
     private val batchJobRunner: SvBatchJobRunner
 ) {
-    private val typeBatchStrategy = object : BatchStrategy<DTOType> {
+    private val batchStrategy = object : BatchStrategy<DTOType> {
         override val domain = EnumFailDomain.TYPE
 
         override suspend fun getIdSet(): Set<Int> = PokemonConst.TYPE_ID_SET
@@ -29,7 +29,7 @@ class SvType(
                 concurrency = 6,
                 delayMs = 3000
             ) { id ->
-                pokemonApiType.fetchType(id)
+                pokemonApiType.fetch(id)
             }
         }
 
@@ -42,11 +42,11 @@ class SvType(
         }
     }
     suspend fun addAllForce(): String = batchJobRunner.startBatchJob(
-        strategy = typeBatchStrategy,
+        strategy = batchStrategy,
         isForce = true
     )
     suspend fun addAllCheck(): String = batchJobRunner.startBatchJob(
-        strategy = typeBatchStrategy,
+        strategy = batchStrategy,
         isForce = false
     )
 }

@@ -17,7 +17,7 @@ class SvVersion(
     private val pokemonApiVersion: PokemonApiVersion,
     private val batchJobRunner: SvBatchJobRunner
 ) {
-    private val versionBatchStrategy = object : BatchStrategy<DTOVersion> {
+    private val batchStrategy = object : BatchStrategy<DTOVersion> {
         override val domain = EnumFailDomain.VERSION
 
         override suspend fun getIdSet(): Set<Int> = pokemonApiCatalog.fetchIdSet(domain.apiKey)
@@ -29,7 +29,7 @@ class SvVersion(
                 concurrency = 6,
                 delayMs = 3000
             ) { id ->
-                pokemonApiVersion.fetchVersion(id)
+                pokemonApiVersion.fetch(id)
             }
 
         override suspend fun saveData(list: List<DTOVersion>) {
@@ -41,11 +41,11 @@ class SvVersion(
         }
     }
     suspend fun addAllForce(): String = batchJobRunner.startBatchJob(
-        strategy = versionBatchStrategy,
+        strategy = batchStrategy,
         isForce = true
     )
     suspend fun addAllCheck(): String = batchJobRunner.startBatchJob(
-        strategy = versionBatchStrategy,
+        strategy = batchStrategy,
         isForce = false
     )
 }

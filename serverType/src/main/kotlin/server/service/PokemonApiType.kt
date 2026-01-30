@@ -20,7 +20,7 @@ class PokemonApiType(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
     private val domain = EnumFailDomain.TYPE
-    suspend fun fetchType(id: Int): DTOType {
+    suspend fun fetch(id: Int): DTOType {
         require(id in PokemonConst.TYPE_ID_RANGE) { "type id out of range: $id" }
         log.info("[POKE API 요청/${domain.name}] ID:$id")
         val item = pokemonWebClient.get()
@@ -45,7 +45,7 @@ class PokemonApiType(
                 ?: item.name,
             relation = DTOTypeRelation(relationMap)
         )
-        log.info("[POKE API 요청 완료/${domain.name}] ID:$${dto.typeRowid}, 이름: $${dto.nameKr}")
+        log.info("[POKE API 요청 완료/${domain.name}] ID:${dto.typeRowid}, 이름:${dto.nameKr}")
         return dto
     }
 
