@@ -27,17 +27,7 @@ internal class RepoMoveR2dbc(
             mapper,
             qAdd,
             _Move::_move_rowid,
-            MoveAddParam(
-                moveRowid = param.moveRowid,
-                typeRowid = param.typeRowid,
-                nameKr = param.nameKr,
-                nameJp = param.nameJp,
-                nameEn = param.nameEn,
-                descriptionKr = param.descriptionKr,
-                descriptionJp = param.descriptionJp,
-                descriptionEn = param.descriptionEn,
-                details = mapper.toJson(param.details)
-            ),
+            MoveAddParam(mapper, param),
             false
         )
     }
@@ -45,19 +35,7 @@ internal class RepoMoveR2dbc(
         return db.insertBulk(
             mapper,
             qAddAll,
-            ArrayList(param.map {
-                MoveAddParam(
-                    moveRowid = it.moveRowid,
-                    typeRowid = it.typeRowid,
-                    nameKr = it.nameKr,
-                    nameJp = it.nameJp,
-                    nameEn = it.nameEn,
-                    descriptionKr = it.descriptionKr,
-                    descriptionJp = it.descriptionJp,
-                    descriptionEn = it.descriptionEn,
-                    details = mapper.toJson(it.details)
-                )
-            })
+            ArrayList(param.map { MoveAddParam(mapper, it) })
         )
     }
     private class MoveAddParam(
@@ -70,8 +48,21 @@ internal class RepoMoveR2dbc(
         var descriptionJp: String,
         var descriptionEn: String,
         var details: String
-    ):DTO
-
+    ):DTO {
+        companion object{
+            operator fun invoke(mapper: ObjectMapper, dto: DTOMove) = MoveAddParam(
+                moveRowid = dto.moveRowid,
+                typeRowid = dto.typeRowid,
+                nameKr = dto.nameKr,
+                nameJp = dto.nameJp,
+                nameEn = dto.nameEn,
+                descriptionKr = dto.descriptionKr,
+                descriptionJp = dto.descriptionJp,
+                descriptionEn = dto.descriptionEn,
+                details = mapper.toJson(dto.details)
+            )
+        }
+    }
     private val qAdd = scan.sql.insert(_Move::class)
         .colNum(_Move::_move_rowid, MoveAddParam::moveRowid)
         .colNum(_Move::_type_rowid, MoveAddParam::typeRowid)

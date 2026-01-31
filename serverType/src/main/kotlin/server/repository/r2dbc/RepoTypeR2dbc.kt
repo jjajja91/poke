@@ -27,13 +27,7 @@ internal class RepoTypeR2dbc(
             mapper,
             qAdd,
             _Type::_type_rowid,
-            TypeAddParam(
-                typeRowid = param.typeRowid,
-                nameKr = param.nameKr,
-                nameJp = param.nameJp,
-                nameEn = param.nameEn,
-                contents = mapper.toJson(param.relation)
-            ),
+            TypeAddParam(mapper, param),
             false
         )
     }
@@ -42,15 +36,7 @@ internal class RepoTypeR2dbc(
         return db.insertBulk(
             mapper,
             qAddAll,
-            ArrayList(param.map {
-                TypeAddParam(
-                    typeRowid = it.typeRowid,
-                    nameKr = it.nameKr,
-                    nameJp = it.nameJp,
-                    nameEn = it.nameEn,
-                    contents = mapper.toJson(it.relation)
-                )
-            })
+            ArrayList(param.map { TypeAddParam(mapper,it) })
         )
     }
     private class TypeAddParam(
@@ -59,7 +45,17 @@ internal class RepoTypeR2dbc(
         val nameJp : String,
         val nameEn : String,
         val contents : String
-    ):DTO
+    ):DTO {
+        companion object {
+            operator fun invoke(mapper: ObjectMapper, dto: DTOType) = TypeAddParam(
+                typeRowid = dto.typeRowid,
+                nameKr = dto.nameKr,
+                nameJp = dto.nameJp,
+                nameEn = dto.nameEn,
+                contents = mapper.toJson(dto.relation)
+            )
+        }
+    }
     private val qAdd = scan.sql.insert(_Type::class)
         .colNum(_Type::_type_rowid, TypeAddParam::typeRowid)
         .colStr(_Type::name_kr, TypeAddParam::nameKr)

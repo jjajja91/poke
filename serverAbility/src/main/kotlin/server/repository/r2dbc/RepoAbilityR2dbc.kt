@@ -26,15 +26,7 @@ internal class RepoAbilityR2dbc(
             mapper,
             qAdd,
             _Ability::_ability_rowid,
-            AbilityAddParam(
-                abilityRowid = param.abilityRowid,
-                nameKr = param.nameKr,
-                nameJp = param.nameJp,
-                nameEn = param.nameEn,
-                descriptionKr = param.descriptionKr,
-                descriptionJp = param.descriptionJp,
-                descriptionEn = param.descriptionEn,
-            ),
+            AbilityAddParam(param),
             false
         )
     }
@@ -43,17 +35,7 @@ internal class RepoAbilityR2dbc(
         return db.insertBulk(
             mapper,
             qAddAll,
-            ArrayList(param.map {
-                AbilityAddParam(
-                    abilityRowid = it.abilityRowid,
-                    nameKr = it.nameKr,
-                    nameJp = it.nameJp,
-                    nameEn = it.nameEn,
-                    descriptionKr = it.descriptionKr,
-                    descriptionJp = it.descriptionJp,
-                    descriptionEn = it.descriptionEn,
-                )
-            })
+            ArrayList(param.map { AbilityAddParam(it) })
         )
     }
     private class AbilityAddParam(
@@ -64,7 +46,19 @@ internal class RepoAbilityR2dbc(
         val descriptionKr: String,
         val descriptionJp: String,
         val descriptionEn: String,
-    ):DTO
+    ):DTO {
+        companion object {
+            operator fun invoke(dto: DTOAbility) = AbilityAddParam(
+                abilityRowid = dto.abilityRowid,
+                nameKr = dto.nameKr,
+                nameJp = dto.nameJp,
+                nameEn = dto.nameEn,
+                descriptionKr = dto.descriptionKr,
+                descriptionJp = dto.descriptionJp,
+                descriptionEn = dto.descriptionEn,
+            )
+        }
+    }
 
     private val qAdd = scan.sql.insert(_Ability::class)
         .colNum(_Ability::_ability_rowid, AbilityAddParam::abilityRowid)

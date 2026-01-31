@@ -4,16 +4,16 @@ import scan.sql.DTO
 import java.time.LocalDateTime
 
 data class DTOMove(
-    var moveRowid: Int,
-    var typeRowid: Int,
-    var nameKr: String,
-    var nameJp: String,
-    var nameEn: String,
-    var descriptionKr: String,
-    var descriptionJp: String,
-    var descriptionEn: String,
-    var details: DTOMoveDetail,
-    var regDate: LocalDateTime? = null
+    val moveRowid: Int,
+    val typeRowid: Int,
+    val nameKr: String,
+    val nameJp: String,
+    val nameEn: String,
+    val descriptionKr: String,
+    val descriptionJp: String,
+    val descriptionEn: String,
+    val details: DTOMoveDetail,
+    val regDate: LocalDateTime? = null
 ): DTO
 
 data class DTOMoveDetail(

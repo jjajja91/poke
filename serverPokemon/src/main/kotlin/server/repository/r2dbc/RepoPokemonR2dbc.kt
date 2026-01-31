@@ -27,22 +27,7 @@ internal class RepoPokemonR2dbc(
             mapper,
             qAdd,
             Pokemon::pokemon_rowid,
-            PokemonAddParam(
-                pokemonRowid = param.pokemonRowid,
-                type1Rowid = param.type1Rowid,
-                type2Rowid = param.type2Rowid,
-                baseRowid = param.baseRowid,
-                nameKr = param.nameKr,
-                nameJp = param.nameJp,
-                nameEn = param.nameEn,
-                hp = param.hp,
-                atk = param.atk,
-                satk = param.satk,
-                spd = param.spd,
-                def = param.def,
-                sdef = param.sdef,
-                details = mapper.toJson(param.details)
-            ),
+            PokemonAddParam(mapper, param),
             false
         )
     }
@@ -52,22 +37,7 @@ internal class RepoPokemonR2dbc(
             mapper,
             qAddAll,
             ArrayList(param.map {
-                PokemonAddParam(
-                    pokemonRowid = it.pokemonRowid,
-                    type1Rowid = it.type1Rowid,
-                    type2Rowid = it.type2Rowid,
-                    baseRowid = it.baseRowid,
-                    nameKr = it.nameKr,
-                    nameJp = it.nameJp,
-                    nameEn = it.nameEn,
-                    hp = it.hp,
-                    atk = it.atk,
-                    satk = it.satk,
-                    spd = it.spd,
-                    def = it.def,
-                    sdef = it.sdef,
-                    details = mapper.toJson(it.details)
-                )
+                PokemonAddParam(mapper, it)
             })
         )
     }
@@ -86,7 +56,26 @@ internal class RepoPokemonR2dbc(
         val def: Int,
         val sdef: Int,
         val details: String,
-    ):DTO
+    ):DTO {
+        companion object {
+            operator fun invoke(mapper: ObjectMapper, dto: DTOPokemon) = PokemonAddParam(
+                pokemonRowid = dto.pokemonRowid,
+                type1Rowid = dto.type1Rowid,
+                type2Rowid = dto.type2Rowid,
+                baseRowid = dto.baseRowid,
+                nameKr = dto.nameKr,
+                nameJp = dto.nameJp,
+                nameEn = dto.nameEn,
+                hp = dto.hp,
+                atk = dto.atk,
+                satk = dto.satk,
+                spd = dto.spd,
+                def = dto.def,
+                sdef = dto.sdef,
+                details = mapper.toJson(dto.details)
+            )
+        }
+    }
 
     private val qAdd = scan.sql.insert(Pokemon::class)
         .colNum(Pokemon::pokemon_rowid, PokemonAddParam::pokemonRowid)

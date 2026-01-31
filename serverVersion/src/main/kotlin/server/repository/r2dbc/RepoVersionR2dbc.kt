@@ -26,13 +26,7 @@ internal class RepoVersionR2dbc(
             mapper,
             qAdd,
             _Version::_version_rowid,
-            VersionAddParam(
-                versionRowid = param.versionRowid,
-                nameKr = param.nameKr,
-                nameJp = param.nameJp,
-                nameEn = param.nameEn,
-                groupKey = param.groupKey
-            ),
+            VersionAddParam(param),
             false
         )
     }
@@ -41,15 +35,7 @@ internal class RepoVersionR2dbc(
         return db.insertBulk(
             mapper,
             qAddAll,
-            ArrayList(param.map {
-                VersionAddParam(
-                    versionRowid = it.versionRowid,
-                    nameKr = it.nameKr,
-                    nameJp = it.nameJp,
-                    nameEn = it.nameEn,
-                    groupKey = it.groupKey
-                )
-            })
+            ArrayList(param.map { VersionAddParam(it) })
         )
     }
     private class VersionAddParam(
@@ -58,7 +44,17 @@ internal class RepoVersionR2dbc(
         val nameJp: String,
         val nameEn: String,
         val groupKey: String
-    ):DTO
+    ):DTO {
+        companion object {
+            operator fun invoke(dto: DTOVersion) = VersionAddParam(
+                versionRowid = dto.versionRowid,
+                nameKr = dto.nameKr,
+                nameJp = dto.nameJp,
+                nameEn = dto.nameEn,
+                groupKey = dto.groupKey
+            )
+        }
+    }
     private val qAdd = scan.sql.insert(_Version::class)
         .colNum(_Version::_version_rowid, VersionAddParam::versionRowid)
         .colStr(_Version::name_kr, VersionAddParam::nameKr)

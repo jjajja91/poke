@@ -4,12 +4,12 @@ import scan.sql.DTO
 import java.time.LocalDateTime
 
 data class DTOAbility(
-    var abilityRowid: Int,
-    var nameKr: String,
-    var nameJp: String,
-    var nameEn: String,
-    var descriptionKr: String,
-    var descriptionJp: String,
-    var descriptionEn: String,
-    var regDate: LocalDateTime? = null,
+    val abilityRowid: Int,
+    val nameKr: String,
+    val nameJp: String,
+    val nameEn: String,
+    val descriptionKr: String,
+    val descriptionJp: String,
+    val descriptionEn: String,
+    val regDate: LocalDateTime? = null,
 ): DTO
