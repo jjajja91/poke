@@ -1,0 +1,7 @@
+ai:
+  inference:
+    provider: OLLAMA
+    url: "http://localhost:11434"
+    defaultOption:
+      llmModel: "gemma2:9b"
+      headers: {}

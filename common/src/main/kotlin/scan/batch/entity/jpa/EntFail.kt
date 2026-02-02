@@ -32,7 +32,7 @@ class EntFail(
     var refId: Int = 0,
 
     @Column(name = "error", columnDefinition = "json", nullable = false)
-    var error: String = "{}",  // JSON string
+    var error: String = "{}",
 
     @Column(name = "updatedate", insertable = false, updatable = false)
     var updateDate: LocalDateTime? = null

@@ -28,7 +28,6 @@ class AppScope : CoroutineScope {
         dispatcher: CoroutineDispatcher = Dispatchers.Default,
         block: suspend CoroutineScope.() -> Unit
     ): Job {
-        // ✅ 기존 coroutineContext(job 포함)에 dispatcher + name을 "추가"해서 실행
         return launch(coroutineContext + dispatcher + CoroutineName(name)) {
             try {
                 block()

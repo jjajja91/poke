@@ -50,10 +50,12 @@ tasks.withType<JavaCompile>().configureEach {
 dependencies {
     api(libs.jackson.module.kotlin)
 
+    api(libs.spring.boot.starter.webflux)
     api(libs.spring.webflux)
     api(libs.common.coroutine)
     api(libs.kotlinx.coroutines.reactor)
     api(libs.reactor.netty.http)
+    api(libs.jsoup)
 
     api(libs.spring.data.jpa)
     api(libs.spring.r2dbc)
