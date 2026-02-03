@@ -43,9 +43,9 @@ class PokemonApiPokemon(
         require(pokeDTO.types.size == 1 || pokeDTO.types.size == 2) { "type size can 1 or 2" }
         require(pokeDTO.stats.size == 6){ "stat size only can 6" }
         val speciesDTO = fetchDetail(pokeDTO.id)
-        val nameByLang = speciesDTO.names.associateBy({ it.language.name }, { it.name })
-        val descriptionByLang = speciesDTO.flavor_text_entries.associateBy({ it.language.name }, { it.flavor_text })
-        val generaByLang = speciesDTO.genera.associateBy({ it.language.name }, { it.genus })
+        val nameByLang = speciesDTO.names.associateBy({ it.language.name.lowercase() }, { it.name })
+        val descriptionByLang = speciesDTO.flavor_text_entries.associateBy({ it.language.name.lowercase() }, { it.flavor_text })
+        val generaByLang = speciesDTO.genera.associateBy({ it.language.name.lowercase() }, { it.genus })
         val type1 = PokemonConst.getIdForUrl(pokeDTO.types[0].type.url) ?: throw Throwable("unknown type id")
         val type2 = if(pokeDTO.types.size == 2) PokemonConst.getIdForUrl(pokeDTO.types[1].type.url) ?: throw Throwable("unknown type id") else type1
         val stat = statsToDetailStat(pokeDTO.stats)

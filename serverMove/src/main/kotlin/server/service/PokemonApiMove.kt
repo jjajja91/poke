@@ -27,8 +27,8 @@ class PokemonApiMove(
     }
 
     private fun convertToDTO(item: DTOPokemonApiMove): DTOMove {
-        val nameByLang = item.names.associateBy({ it.language.name }, { it.name })
-        val descriptionByLang = item.flavor_text_entries.associateBy({ it.language.name }, { it.flavor_text })
+        val nameByLang = item.names.associateBy({ it.language.name.lowercase() }, { it.name })
+        val descriptionByLang = item.flavor_text_entries.associateBy({ it.language.name.lowercase() }, { it.flavor_text })
         val detail = DTOMoveDetail(
             accuracy = item.accuracy,
             power = item.power,

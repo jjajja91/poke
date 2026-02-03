@@ -25,7 +25,7 @@ class PokemonApiVersion(
     }
 
     private fun convertToDTO(item: DTOPokemonApiVersion): DTOVersion {
-        val nameByLang = item.names.associateBy({ it.language.name }, { it.name })
+        val nameByLang = item.names.associateBy({ it.language.name.lowercase() }, { it.name })
         val dto = DTOVersion(
             versionRowid = item.id,
             nameEn = nameByLang[EnumLanguage.EN.key] ?: item.name,

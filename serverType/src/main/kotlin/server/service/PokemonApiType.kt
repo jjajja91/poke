@@ -35,7 +35,7 @@ class PokemonApiType(
             .associateWith { DTOTypeRelationDamage(1.0, 1.0) }
             .toMutableMap()
         applyDamageRelations(relationMap, item.damage_relations)
-        val nameByLang = item.names.associateBy({ it.language.name }, { it.name })
+        val nameByLang = item.names.associateBy({ it.language.name.lowercase() }, { it.name })
         val dto = DTOType(
             typeRowid = item.id,
             nameEn = nameByLang[EnumLanguage.EN.key] ?: item.name,

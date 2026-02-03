@@ -25,8 +25,8 @@ class PokemonApiAbility(
     }
 
     private fun convertToDTO(item: DTOPokemonApiAbility): DTOAbility {
-        val nameByLang = item.names.associateBy({ it.language.name }, { it.name })
-        val descriptionByLang = item.flavor_text_entries.associateBy({ it.language.name }, { it.flavor_text })
+        val nameByLang = item.names.associateBy({ it.language.name.lowercase() }, { it.name })
+        val descriptionByLang = item.flavor_text_entries.associateBy({ it.language.name.lowercase() }, { it.flavor_text })
         val dto = DTOAbility(
             abilityRowid = item.id,
             nameEn = nameByLang[EnumLanguage.EN.key] ?: item.name,
